@@ -2,7 +2,7 @@
 """Build printable mock papers (PDF) and answer keys (Markdown).
 
 Usage: python3 Notes/mocks/build_mocks.py
-Outputs (in Notes/mocks/): MOCK-B.pdf, MOCK-C-part1.pdf, MOCK-B-key.md, MOCK-C-part1-key.md
+Outputs (in Notes/mocks/): MOCK-B.pdf (+ -print-safe.pdf image copy for fussy printers), MOCK-C-part1.pdf, MOCK-B-key.md, MOCK-C-part1-key.md
 Question data lives in mock_data.py. PDFs are rendered with headless Chrome/Chromium.
 """
 import html, shutil, subprocess, sys, tempfile
@@ -41,8 +41,8 @@ ul.rules { margin: 1mm 0 3mm 5mm; padding: 0; } ul.rules li { margin: 0.8mm 0; }
 table.data { border-collapse: collapse; margin: 2mm 0 1mm 5mm; font-size: 9.5pt; }
 table.data th, table.data td { border: 0.6pt solid #444; padding: 1mm 2.5mm; text-align: left; }
 table.data th { background: #eee; }
-.lines { height: var(--h); margin-top: 2mm; border: 0.6pt solid #777; border-radius: 1mm;
-         background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(8mm - 0.5pt), #bbb calc(8mm - 0.5pt), #bbb 8mm); }
+.lines { margin-top: 2mm; border: 0.6pt solid #777; }
+.ln { height: 8mm; border-bottom: 0.5pt solid #bbb; box-sizing: border-box; } .ln:last-child { border-bottom: none; }
 .sa { break-inside: avoid; }
 .pb { break-before: page; }
 .gb { display: inline-block; width: 3.2mm; height: 3.2mm; border: 0.7pt solid #000; vertical-align: -0.6mm; }
@@ -84,7 +84,7 @@ def build_html(m):
             for r in t["rows"]:
                 out.append("<tr>" + "".join(f"<td>{esc(c)}</td>" for c in r) + "</tr>")
             out.append("</table>")
-        out.append(f"<div class='lines' style='--h:{q['lines'] * 8}mm'></div></div>")
+        out.append(f"<div class='lines'>" + "<div class='ln'></div>" * q['lines'] + "</div></div>")
     out.append("</body></html>")
     return "".join(out)
 
@@ -97,6 +97,15 @@ def to_pdf(htm, dest):
         f.write_text(htm, encoding="utf-8")
         subprocess.run([CHROME, "--headless", "--no-sandbox", "--disable-gpu", "--no-pdf-header-footer",
                         f"--print-to-pdf={dest}", f.as_uri()], check=True, capture_output=True)
+
+
+def rasterize(pdf, dest, dpi=200):
+    """Image-only copy of the PDF: no fonts, shadings or transparency, so any PostScript printer accepts it."""
+    from PIL import Image
+    with tempfile.TemporaryDirectory() as td:
+        subprocess.run(["pdftoppm", "-r", str(dpi), "-gray", "-png", str(pdf), f"{td}/p"], check=True)
+        pages = [Image.open(f).convert("L") for f in sorted(Path(td).glob("p-*.png"))]
+        pages[0].save(dest, "PDF", resolution=dpi, save_all=True, append_images=pages[1:])
 
 
 def build_key(m):
@@ -133,6 +142,7 @@ def main():
     assert len(used) == len(set(used)) == 51, len(used)
     for m, name in ((D.MOCK_B, "MOCK-B"), (D.MOCK_C, "MOCK-C-part1")):
         to_pdf(build_html(m), HERE / f"{name}.pdf")
+        rasterize(HERE / f"{name}.pdf", HERE / f"{name}-print-safe.pdf")
         (HERE / f"{name}-key.md").write_text(build_key(m), encoding="utf-8")
         print("built", name)
 
