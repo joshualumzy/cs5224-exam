@@ -1,0 +1,22 @@
+@page { size: A4 landscape; margin: 8mm 9mm; }
+body { font: 8.4pt/1.25 -apple-system, "Helvetica Neue", Arial, sans-serif; color: #111; }
+h1 { font-size: 14pt; margin: 0 0 3pt; }
+h2 { font-size: 12pt; margin: 8pt 0 3pt; border-bottom: 1.2pt solid #333; }
+h3 { font-size: 11pt; margin: 10pt 0 4pt; padding: 2pt 6pt; background: #e8eef7; break-after: avoid; }
+h4 { font-size: 10pt; margin: 6pt 0 2pt; color: #2a4a7a; border-bottom: 0.6pt solid #b8c6dc; break-after: avoid; }
+p { margin: 3pt 0; }
+p.caption { margin: 4pt 0 1pt; break-after: avoid; }
+table { border-collapse: collapse; width: 100%; margin: 1pt 0 3pt; }
+thead { display: table-header-group; }
+th, td { border: 0.5pt solid #888; padding: 1.5pt 4pt; vertical-align: top; text-align: left; }
+th { background: #eee; }
+tr { break-inside: avoid; }
+table.compare td:first-child { font-weight: 600; background: #f6f6f6; width: 12%; }
+table.concepts td:first-child { width: 2em; text-align: center; }
+table.tactics td:first-child { font-weight: 600; background: #f6f6f6; width: 11%; }
+table.tactics td:nth-child(2) { width: 22%; }
+ul { margin: 2pt 0 4pt 14pt; padding: 0; }
+code { font: 7.5pt Menlo, monospace; }
+a { color: #1a4fa0; text-decoration: none; border-bottom: 0.4pt dotted #1a4fa0; }
+/* Each lecture and Exam Tactics start on a new page; the concept map stays on page 1. */
+h3 ~ h3, h2 ~ h2 { break-before: page; }
