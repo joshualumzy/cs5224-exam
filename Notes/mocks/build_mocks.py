@@ -45,6 +45,7 @@ table.data th { background: #eee; }
          background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(8mm - 0.5pt), #bbb calc(8mm - 0.5pt), #bbb 8mm); }
 .sa { break-inside: avoid; }
 .pb { break-before: page; }
+.gb { display: inline-block; width: 3.2mm; height: 3.2mm; border: 0.7pt solid #000; vertical-align: -0.6mm; }
 .foot { margin-top: 6mm; font-size: 9pt; color: #555; text-align: center; }
 """
 
@@ -63,26 +64,10 @@ def build_html(m):
     nm, ns = len(mcqs), len(sas)
     marks = nm + 2 * ns
     out = [f"<!doctype html><html><head><meta charset='utf-8'><title>{m['title']}</title><style>{CSS}</style></head><body>"]
-    out.append(f"<h1>CS5224 Cloud Computing: {esc(m['title'])}</h1><div class='sub'>{esc(m['subtitle'])}</div>")
-    out.append(f"<table class='meta'><tr><td><b>Time allowed:</b> {m['minutes']} minutes</td><td><b>Total marks:</b> {marks}</td>"
-               f"<td><b>Questions:</b> {nm + ns} ({nm} MCQ + {ns} short answer)</td></tr>"
-               "<tr><td>Start time: ____________</td><td>End time: ____________</td><td>Minutes taken: ________</td></tr></table>")
-    out.append("<ul class='rules'>"
-               "<li><b>Open book.</b> Printed or written notes only. No internet, no AI, no electronic devices (same as the exam).</li>"
-               f"<li>Questions 1-{nm} are multiple choice, 1 mark each: fill in <b>one</b> bubble on the answer sheet below.</li>"
-               f"<li>Questions {nm + 1}-{nm + ns} are short answer, 2 marks each: write in the box under the question.</li>"
-               "<li>Tick the <b>guessed</b> box beside any MCQ where you were not sure: it helps the review afterwards.</li>"
-               "<li>Do not skip ahead to look at answers. Keep to the time; mark your overrun if you go over.</li></ul>")
-    out.append("<h2>MCQ answer sheet</h2><div class='grid'>")
-    for i in range(nm):
-        bubs = "".join(f"<span class='bub'>{c}</span>" for c in "abcde")
-        out.append(f"<div class='grow'><b>{i + 1}</b>{bubs}<span class='gs'>guessed<i></i></span></div>")
-    out.append("</div>")
-    out.append("<div class='foot'>Short-answer marks are written in the boxes. Turn the page to begin.</div>")
-
-    out.append(f"<div class='pb'></div><h2>Section A: Multiple choice (1 mark each)</h2>")
+    out.append(f"<h1>{esc(m['title'])}</h1><div class='sub'>{m['minutes']} min &middot; {marks} marks &middot; {nm} MCQ + {ns} short answer &middot; open book, no internet or AI. Circle one option per MCQ; tick <b>guessed</b> if unsure.</div>")
+    out.append("<h2>Section A: Multiple choice (1 mark each)</h2>")
     for i, q in enumerate(mcqs, 1):
-        out.append(f"<div class='q'><div class='qh'><span>Question {i}</span><span class='m'>[1 mark]</span></div><div class='qt'>")
+        out.append(f"<div class='q'><div class='qh'><span>Question {i}</span><span class='m'>guessed <i class='gb'></i> &nbsp; [1 mark]</span></div><div class='qt'>")
         lines = q["text"].split("\n")
         out.append("".join(f"<p>{esc(p)}</p>" for p in lines))
         out.append("</div>")
@@ -90,7 +75,7 @@ def build_html(m):
             out.append(f"<div class='opt'><b>({L})</b><span>{esc(o)}</span></div>")
         out.append("</div>")
 
-    out.append(f"<div class='pb'></div><h2>Section B: Short answer (2 marks each)</h2>")
+    out.append(f"<h2>Section B: Short answer (2 marks each)</h2>")
     for j, q in enumerate(sas, nm + 1):
         out.append(f"<div class='q sa'><div class='qh'><span>Question {j}</span><span class='m'>[2 marks]</span></div><div class='qt'>{paras(q['text'])}</div>")
         if q["table"]:
