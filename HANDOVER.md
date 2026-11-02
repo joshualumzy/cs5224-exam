@@ -26,8 +26,8 @@ You are a Cloud Computing tutor and mentor helping Joshua prepare for the **NUS 
 | L09 | DONE 1 Nov: 6 + gap set (about 60%) | configuration vs state file (twice; state does not update itself, plan/apply re-read tracked resources); separate state per environment, not just modules; IaC defines servers, health checks + auto-scaling replace them; apply reverts hand changes |
 | L10 | DONE 1 Nov: 6 + gap set (about 75%) | arithmetic slips (gave hours instead of dollars; tier band off by 50 GB); tiered rates charged band by band, not all at the top rate; comparing pie-chart shares instead of dollars (Joshua calls G4 a calculation slip, so no star); building depreciation is fixed, it does not rise at low utilisation; sunk vs integration cost named loosely |
 | Mock A (L01-L05) | DONE 31 Oct: 21.5/30 in 31 min | short answers that need two concrete ways, or a design that covers every requirement (spikes, scaling back down, several countries) |
-| Mock B | **NEXT** (2 Nov) | |
-| Mock C | to do (3 Nov) | |
+| Mock B | **PAPER WRITTEN 2 Nov, to be sat** (`Notes/mocks/MOCK-B.pdf`, key in `MOCK-B-key.md`) | |
+| Mock C | Part 1 (25 real questions) WRITTEN 2 Nov (`MOCK-C-part1.pdf`); Part 2 (10 gotchas) to be written online after Mock B is reviewed | |
 
 **Mock plan (agreed 1 Nov):** Mock B finds weaknesses on the essentials; Mock C is the final gotcha round, aimed at what Mocks A and B showed. Mock C runs on the exam morning (the exam is that evening).
 - **Goal: Joshua sees all 75 real past-paper questions exactly once across Mocks A, B and C.** Mock A + Mock B must cover the essentials on their own, so skipping Mock C loses only extra practice.
@@ -41,7 +41,7 @@ You are a Cloud Computing tutor and mentor helping Joshua prepare for the **NUS 
 | C (Tue 3 Nov, morning) | 25: all the rest | 10 harder gotchas on the weak spots of Mocks A and B | 35 | ~125 min |
 
 - Mock A's weak spots: trust-boundary direction, VM vs container, elastic vs horizontal, hypervisor isolation, data across several countries, designs that scale back down.
-- **After Mock B:** review it and fill the gaps the same evening. The gaps these questions test were deliberately kept out of the INDEX so the mocks stay clean. **Write Mock C only after Mock B is reviewed.** After Mock C, fold any gap into its INDEX row before the exam.
+- **After Mock B:** review it and fill the gaps the same evening. The gaps these questions test were deliberately kept out of the INDEX so the mocks stay clean. **Mock C Part 1 (the 25 real questions) was written early on 2 Nov at Joshua's request so he could print it; only Part 2, the 10 harder gotchas, waits until Mock B is reviewed and is done online.** After Mock C, fold any gap into its INDEX row before the exam.
 
 **All lectures are done and in the INDEX** (L10 added 1 Nov: section with tables 1, 2, 5 and rows 3, 4, 6, 7; Joshua had worked calculations and the cost-per-unit-of-work row removed as self-explanatory (he wants as little arithmetic on the page as possible); See-also links from L01-4, L02-2, L05-12, L07-8; concept map now L01-L10 with a Cost layer; Exam Tactics row 11 "What will it cost?"). Also 1 Nov: L04 rows "datacenter areas" and "datacenter networks" were cut (pure names, never tested in 75 past-paper questions); L04 is now rows 1-9 + table 10. A second clipping pass (1 Nov, 19 fixes) covered the Exam Tactics "Pick by" column and table cells the first pass missed; clarity beats brevity everywhere, including table cells. Exam Tactics table is now Ask | Cues | Pick by, with one "cue → pick" rule per line (`<br>` in the cell; `build.py` allows `<br>` in table cells and gives the table its own column widths in `print.css`); it must stay on one page. Joshua's rule for cutting: keep anything that helps an exam answer, illustrates a concept, links it to reality or makes it clearer. The PDF is 18 pages.
 
@@ -171,3 +171,13 @@ Before marking a lecture done, check every concept against the slides or cards, 
 - Short, scannable output. Show him the list of changes before making them.
 - He wants conceptual answers, not reasoning built from one exam question.
 - When he gives meta-feedback on how the session is run, adjust. When he disagrees, answer his actual question before changing files.
+
+---
+
+## Mock papers (written 2 Nov)
+
+- Files in `Notes/mocks/`: `mock_data.py` (question bank and the B/C question order), `build_mocks.py` (run `python3 Notes/mocks/build_mocks.py` to rebuild the PDFs and keys; it asserts every one of the 51 real questions appears exactly once across B and C), `MOCK-B.pdf`, `MOCK-C-part1.pdf` (print versions, no hints, MCQ answer grid with a "guessed" box), and `MOCK-B-key.md`, `MOCK-C-part1-key.md` (answers, source map, marking notes). **Do not show the keys before he sits the paper.**
+- **Mock B:** 24 MCQ + 6 short answers = 36 marks, 110 min. 26 real (21 MCQ + 5 SA) + 4 own: OWN-B1 (k-means mapper output), OWN-B2 (video app: separate encoders + queue), OWN-B3 (hypervisor isolation), OWN-B4 (ticket-sale spike, must scale back down).
+- **Mock C Part 1:** 19 MCQ + 6 short answers = 31 marks, 90 min, the other 25 real questions. Part 2 (10 gotchas, about 7 MCQ + 3 SA) is still to write, aimed at the weak spots of Mock B and Mock A (trust-boundary direction, elastic vs horizontal and the others in this file's Mock plan).
+- Split rule used: 29 unused real questions were high-confidence, 3 more than fit in B. 24S2 Q3 (PaaS dev environment; duplicates 25S1 Q13 and Q15) went to C, and so did two short answers on the same idea as another B question (24S2 Q21, repeat of 25S1 Q24 pricing; 24S2 Q25, repeat of the hybrid questions). All 11 unused real short answers: B takes 5, C takes 6.
+- Joshua's one correction to wording: none yet. Past-paper wording was kept except obvious typos.
