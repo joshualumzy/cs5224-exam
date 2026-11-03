@@ -4,7 +4,7 @@
 Supports only the Markdown the INDEX uses: #/##/###/#### headings, ---, paragraphs,
 pipe tables (a cell may use <br> for a line break), "- " bullets, **bold**, *italic* and `code`. Anything else stops
 the build with an error, so the PDF never silently drops content.
-Cross-references become clickable: "L03-11" anywhere, and "row 10" / "table 10"
+Cross-references become clickable: "T3-11" anywhere, and "row 10" / "table 10"
 within the same lecture. A reference to a row or table that does not exist
 stops the build.
 Usage: python3 Notes/print/build.py
@@ -36,7 +36,7 @@ def inline(text):
     return "".join(out)
 
 
-REF = re.compile(r"\b(L\d\d)-(\d+)\b|\b(row|table) (\d+)\b")
+REF = re.compile(r"\b(T\d+)-(\d+)\b|\b(row|table) (\d+)\b")
 
 
 def link(text, lec, refs):
@@ -71,9 +71,9 @@ def convert(lines):
         elif m := re.match(r"(#{1,4}) (.+)", line):
             n = len(m.group(1))
             if n == 3:
-                # A ### heading starts a lecture ("L03 — ...") or a non-lecture section
+                # A ### heading starts a section ("T3 — ...") or a non-lecture section
                 # (e.g. the concept map), where bare "row N" references are not linked.
-                lec = lm.group(0) if (lm := re.match(r"L\d\d", m.group(2))) else None
+                lec = lm.group(0) if (lm := re.match(r"T\d+", m.group(2))) else None
             out.append(f"<h{n}>{inline(m.group(2))}</h{n}>")
             i += 1
         elif line.strip() == "---":

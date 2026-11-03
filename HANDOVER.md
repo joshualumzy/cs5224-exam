@@ -1,5 +1,7 @@
 # CS5224 Exam Prep — Agent Handover
 
+> **Update 3 Nov 2026 (exam over):** Joshua finished the exam and changed the purpose of the INDEX from exam study to a **key-concepts reference for industry and interviews**. `Notes/INDEX.md` is now organised by theme (T1-T9, links like "T3-9"), no stars, with a few industry staples marked *(beyond the course)*; the exam-era version is kept as `Notes/INDEX-exam-version.md`. `Notes/print/build.py` now reads the T-section headings and embeds SVG diagrams (`Notes/diagrams/`, redrawn from Joshua's hand sketches). The rest of this file describes the exam-prep period and is kept for history.
+
 Read this in full before doing anything else. The rules here are the current ones. Where an old note disagrees with them, these win.
 
 ---
