@@ -45,3 +45,32 @@ Format: 24 MCQ (1 mark) + 6 short answers (2 marks). 26 real + 4 own (OWN-B1..B4
 - **Q30 two VM cost ways (2/2):** Savings Plan (slide s9) and spot.
 
 **Pattern:** wrong answers cluster in L06 (Q15, Q22) and L05 (Q13, Q18). Short answers lose marks by naming an architecture without saying how it works (bursting) or by not applying a reason he had already used in another answer (Q25 vs Q29).
+
+## Mock C (3 Nov 2026, exam day): 32/44 (73%); time not reported
+
+Format: 26 MCQ + 9 short answers. 25 real + 10 own gotchas (OWN-C1..C10).
+
+**MCQ: 18/26.** Wrong:
+- **Q2 (OWN-C8, manual Friday servers):** chose (e) elastic resource capacity. Answer (b) horizontal scaling done manually: more instances = horizontal; by hand on a fixed schedule = not elastic. Elastic resource capacity resizes ONE server vertically.
+- **Q5 (OWN-C5, log2 centroids 4 and 10):** chose (b) 2.5x (10/4). Answer (c) 64x: centroids are in log2, so a difference d means 2^d, 2^6 = 64. Arithmetic/recall slip on a known L07 rule.
+- **Q6 (25S1 Q14, major cloud security threat):** chose (a) unauthorized physical access. Answer (b) data breaches due to multi-tenancy (shared resources, overlapping trust boundaries). Physical access is the provider's datacentre problem.
+- **Q8 (24S2 Q17, multi-cloud sync loss):** chose (c) incompatible APIs. Key: (d) uneven resource provisioning (one cloud runs short of space). Loosely supported by the slides (L10 s19), weak question.
+- **Q13 (25S1 Q19, "which service model gives scalability"):** chose (c) auto-scaling. Answer (d) PaaS: auto-scaling is a feature, not a service model. Same pattern as Mock B Q22 (REST): answering with a technology when the question asks for a model/kind.
+- **Q17 (25S1 Q16, encryption, "most choice"):** chose (e) (iii) or (iv). Answer (c) (ii) or (iii) or (iv): third-party tools are valid too; "most choice" means pick the option that lists every valid method. Not covered by any slide.
+- **Q21 (25S1 Q12, e-commerce past-sales analysis):** chose (a) public only. Answer (d) either: nothing in the scenario forces private or hybrid, so "only" makes (a) wrong.
+- **Q26 (25S1 Q15, NOT true statement):** chose (b) spam detection as MapReduce use case (true). Answer (d): elastic scaling follows load, not a specific period. Same idea as Q2.
+
+**Short answers: 14/18.**
+- Q27 MRT (2/2): async offloading + auto-scaling behind a load balancer, up and down.
+- Q28 port 8080 (2/2): apply reverts it; put the change in the code.
+- Q29 web farm availability (1/2): load-balanced duplicate servers; second way left blank (key: auto-scaling + redundancy across zones).
+- Q30 two other methods (1.5/2): vertical scaling valid; cloud bursting assumes an on-prem base the question does not have. Key: caching, CDN, database optimisation.
+- Q31 residency + exam peaks (2/2): in-country storage with routing, auto-scaling with scale-in.
+- Q32 collaboration tools deployment (1.5/2): public, but only one branch; key: "it depends" on whether security/privacy is required (public if not; hybrid or private if so).
+- Q33 upload design (1.5/2): async, no waiting; consequence correct (web servers pile up). Mechanism (S3 + queue + encoders) not stated.
+- Q34 global hosting factors (0.5/2): gave cost (no region link) and security/trust boundary (a deployment-model answer). Key: availability, cost by region, latency/location, legal requirements.
+- Q35 steady workload pricing (2/2): reserved, with the reason.
+
+**Pattern:** elastic = automatic and follows load, not a schedule or one resized server (Q2, Q26; same as Mock A Q18). The question asks for a model or kind, not a feature (Q13, Mock B Q22). L09 went well: 3/3 MCQ and the port question 2/2.
+
+**Scores over time:** Mock A 72%, Mock B 75%, Mock C 73%.
