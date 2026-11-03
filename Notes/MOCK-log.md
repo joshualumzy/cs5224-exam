@@ -21,9 +21,9 @@ Format: 20 MCQ (1 mark) + 5 short answers (2 marks), past-paper questions from a
 
 **Unused L01-L05 past questions (for Mock B):** 24S2 Q1, 3, 7, 9, 10, 13, 14, 15, 20, 22, 23, 25; 25S1 Q1, 7, 8, 12, 14, 15, 18, 23, 25; 25S2 Q1, 3, 5, 17, 18, 19, 20, 21, 24.
 
-## Mock B and Mock C Part 1: papers written 2 Nov 2026
+## Mock C: full paper written 3 Nov 2026 (Mock B papers written 2 Nov)
 
-Not yet sat. Papers and keys are in `Notes/mocks/` (see HANDOVER.md, "Mock papers"). Results to be logged below after each sitting, in the Mock A format (MCQ wrong with the reason, short answers with marks).
+Mock C not yet sat. Papers and keys are in `Notes/mocks/` (see HANDOVER.md, "Mock papers"). Results to be logged below after each sitting, in the Mock A format (MCQ wrong with the reason, short answers with marks).
 
 ## Mock B (2 Nov 2026): 27/36 (75%); time not reported
 

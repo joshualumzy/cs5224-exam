@@ -397,6 +397,92 @@ sa("25S2 Q25", "L06",
    "The primary issue is the sequence of operations before the gate opens. Do only what is necessary to let the user through and do the other operations later: asynchronous processing, where FaaS or a similar element helps. Scalability must be elastic, scaling up and down with the number of users.",
    "Needs (1) asynchronous offloading of non-essential steps and (2) elastic scaling that also scales down.")
 
+# ---- Own gotchas: Mock C -----------------------------------------------------
+mcq("OWN-C1", "L09 (own)",
+    "A team's Terraform configuration declares 3 web servers, and its state file lists 3. An engineer then deletes one of the servers by hand in the cloud console. What happens the next time someone runs terraform apply?",
+    ["Nothing: the state file still says 3, so Terraform believes everything matches",
+     "Terraform destroys the other two servers and recreates all three",
+     "Terraform stops with an error until someone edits the state file by hand",
+     "Terraform looks up each server in the state against the real cloud, finds that only 2 exist, and creates one to match the configuration",
+     "Terraform rewrites the configuration so that it declares 2 servers"],
+    "d",
+    "Option (d). The state file does not update itself. Plan and apply first refresh: they look up each tracked resource in the real cloud, compare with the configuration and act on the difference. Source: L09 notes, Concept 5 (state vs configuration; your repeated slip).")
+
+mcq("OWN-C2", "L09 (own)",
+    "A company defines its network and servers once in a Terraform module. Dev, staging and production all call this module, but all three are kept in one folder that shares a single state file. What is the main risk?",
+    ["An apply run to change dev also covers the staging and production resources, so a dev change can alter production",
+     "A module cannot be reused by more than one environment",
+     "Terraform can no longer create resources in parallel",
+     "The three environments will slowly drift apart because each has its own copy of the code",
+     "Terraform cannot run plan until the three environments are split into separate repositories"],
+    "a",
+    "Option (a). Separate environments need separate state files. Putting them in different modules but one state does not separate them: one state means every apply covers production too. Using one module is the right part (it stops copies diverging). Source: L09 notes, Concept 5 and its WARNING box.")
+
+mcq("OWN-C3", "L09 (own)",
+    "A web fleet runs behind a load balancer, and the whole fleet is defined in infrastructure code. At 3 a.m. one server crashes. Which pieces actually notice the failure and bring a replacement?",
+    ["The Terraform configuration file, which keeps watching the servers",
+     "The Terraform state file, which marks the dead server as failed",
+     "The Git repository holding the code, which triggers a rebuild",
+     "The terraform plan command, which runs continuously in the background",
+     "The load balancer's health check, and an auto-scaling group that launches a fresh server from the same definition"],
+    "e",
+    "Option (e). IaC defines the server so any copy is identical and quick to build; it does not watch servers. Detection and replacement come from health checks and auto-scaling. Source: L09 notes, Concept 3 (pets vs cattle) and its WARNING box.")
+
+sa("OWN-C4", "L09 (own)",
+   "During an outage an engineer opens port 8080 on a firewall by hand in the cloud console. The firewall is managed by Terraform, and the code still has that port closed. A week later a teammate runs terraform apply to resize a database. In two or three sentences: what happens to port 8080, why, and what should the engineer have done?",
+   "Port 8080 is closed again. Apply makes its own plan first, checking the real cloud; it sees that the firewall (a resource it tracks) differs from the code, so the plan includes reverting it, and if nobody reads the plan the emergency fix is silently undone. The engineer should have put the change into the code (or reverted it) through normal review.",
+   "1 mark: port closed again with the reason (apply checks live state against code and reverts the difference). 1 mark: put the hand change into the code via review. Common slip: assuming apply only touches what the teammate was changing.")
+
+mcq("OWN-C5", "L07 (own)",
+    "A team clusters social-media users by follower count using k-means, after taking log2 of every count. Two of the final centroids are 4 (cluster P) and 10 (cluster Q). How does a typical user in Q compare with a typical user in P?",
+    ["About 6 times as many followers",
+     "About 2.5 times as many followers",
+     "About 64 times as many followers",
+     "About 1,024 times as many followers",
+     "About 100 times as many followers"],
+    "c",
+    "Option (c). Centroids are in log2, so a difference of d means a ratio of 2^d: 10 - 4 = 6, and 2^6 = 64. Source: L07 notes, Concept 2 (reading output, slides s17-18).")
+
+mcq("OWN-C6", "L07 (own)",
+    "A k-means job on customers' yearly spend produces one cluster holding a single customer who spent $2 million, while the other four clusters are almost identical. The team takes the logarithm of spend and reruns the job. Why does this help?",
+    ["It makes the data smaller, so the job finishes faster",
+     "It removes the $2 million customer from the data set",
+     "It automatically raises k, so more clusters are formed",
+     "It makes every customer's spend equal so the clusters match",
+     "It pulls extreme values closer to the rest, so one outlier no longer claims a whole cluster and the other customers can separate into meaningful groups"],
+    "e",
+    "Option (e). K-means sees only distance, so the widest-range attribute dominates; a few extreme points pull a centroid out to themselves and waste one of the k clusters. Log compresses big values and makes equal ratios equal distances. Source: L07 notes, Concept 2 (slide s12 plus reasoning).")
+
+sa("OWN-C7", "L07 (own)",
+   "In a video-sharing app, upload web servers and video encoders run as separate groups. A user uploads a 2 GB video and instantly sees \"upload complete\", but the video reaches viewers 20 minutes later. A colleague calls this a bug and wants each upload server to wait for the encoding to finish before replying to the user. In two or three sentences, explain why the current design is sensible and what the colleague's change would cause.",
+   "The upload server only saves the raw video to storage (S3) and leaves a job message in a queue (SQS), then replies at once; the encoders pick jobs from the queue when free, so the delay is just the backlog. Waiting for encoding would tie up the upload server and the user for the whole conversion, cause time-outs when encoders are busy (e.g. a viral spike), and a job running only inside one server would be lost if that server died, whereas a queued message reappears and another encoder takes it.",
+   "1 mark: current design explained (save, queue, reply; encoders work from the backlog; delay is only conversion time). 1 mark: consequence of waiting (uploads block and time out under load, or job lost if the server dies). Naming 'asynchronous' without the mechanism earns at most 1.")
+
+mcq("OWN-C8", "L01 (own)",
+    "A company adds two identical web servers by hand every Friday at 5 pm, because traffic always rises at weekends, and removes them on Monday morning. Which description fits best?",
+    ["Elastic scaling",
+     "Horizontal scaling, done manually",
+     "Vertical scaling",
+     "Cloud bursting",
+     "The elastic resource capacity architecture"],
+    "b",
+    "Option (b). Adding more instances is horizontal; doing it by hand on a fixed schedule means it is not elastic, because elastic scaling is usually automatic and follows the load, not a fixed time period (25S1 Q15). Mock A Q18 was the same distinction.")
+
+mcq("OWN-C9", "L01 (own)",
+    "A hospital H uses a SaaS patient-records system run by provider P. Which statement is correct?",
+    ["H must extend its trust boundary to cover P, but P does not need to extend its trust boundary to cover H",
+     "P must extend its trust boundary to cover H, because P stores H's data",
+     "Once the service is shared, neither H nor P has an organisational boundary",
+     "H and P each extend their trust boundary to cover the other",
+     "The trust boundaries of H and P never overlap, because each has its own organisational boundary"],
+    "a",
+    "Option (a). Both have organisational boundaries, but only the consumer extends its trust boundary to cover the provider, never the reverse (24S2 Q8). Mock A Q4 was a miss on this.")
+
+sa("OWN-C10", "L03/L02 (own)",
+   "An online exam platform is used by universities in Singapore, Malaysia and Indonesia. Each country's law says student records must stay inside that country. Demand is about 50 times higher during two-week exam periods and close to zero otherwise. Give two design choices that cover both the residency rules and the demand pattern.",
+   "(1) Keep each country's data in a region (or sovereign cloud) in that country and route each university's users to their country's regional service, with access control and encryption. (2) Put a load balancer and auto-scaling in each region so capacity scales out for the exam periods and back in afterwards, so there is no idle cost.",
+   "1 mark for a residency design (in-region storage and routing users to region-specific services). 1 mark for a scaling design that also scales back DOWN. A single global region fails the residency rule; 'horizontal scaling' alone ignores scaling in (Mock A Q25 slip).")
+
 # ---------------------------------------------------------------- Mock definitions
 MOCK_B = dict(
     code="B", title="Mock B", minutes=110,
@@ -408,9 +494,10 @@ MOCK_B = dict(
 )
 
 MOCK_C = dict(
-    code="C", title="Mock C, Part 1", minutes=90,
-    subtitle="Mixed, all lectures L01-L10 (the remaining 25 real questions)",
-    mcq=["25S2 Q13", "24S2 Q10", "25S1 Q1", "25S2 Q18", "24S2 Q17", "25S1 Q14", "25S2 Q2", "24S2 Q13", "25S1 Q19", "25S2 Q15",
-         "24S2 Q20", "25S1 Q16", "24S2 Q14", "25S2 Q14", "25S1 Q12", "24S2 Q3", "25S2 Q19", "25S1 Q2", "25S1 Q15"],
-    sa=["25S2 Q25", "24S2 Q22", "25S1 Q23", "24S2 Q25", "25S2 Q21", "24S2 Q21"],
+    code="C", title="Mock C", minutes=125,
+    subtitle="Mixed, all lectures L01-L10 (final round: the remaining 25 real questions plus 10 harder gotchas)",
+    mcq=["25S1 Q1", "OWN-C8", "25S2 Q13", "24S2 Q10", "OWN-C5", "25S1 Q14", "25S2 Q18", "24S2 Q17", "OWN-C9", "25S2 Q2",
+         "24S2 Q13", "OWN-C1", "25S1 Q19", "25S2 Q15", "24S2 Q20", "OWN-C6", "25S1 Q16", "24S2 Q14", "25S2 Q14", "OWN-C3",
+         "25S1 Q12", "24S2 Q3", "25S2 Q19", "OWN-C2", "25S1 Q2", "25S1 Q15"],
+    sa=["25S2 Q25", "OWN-C4", "24S2 Q22", "25S1 Q23", "OWN-C10", "24S2 Q25", "OWN-C7", "25S2 Q21", "24S2 Q21"],
 )

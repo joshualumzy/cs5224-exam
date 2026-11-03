@@ -2,7 +2,7 @@
 """Build printable mock papers (PDF) and answer keys (Markdown).
 
 Usage: python3 Notes/mocks/build_mocks.py
-Outputs (in Notes/mocks/): MOCK-B.pdf (+ -print-safe.pdf image copy for fussy printers), MOCK-C-part1.pdf, MOCK-B-key.md, MOCK-C-part1-key.md
+Outputs (in Notes/mocks/): MOCK-B.pdf (+ -print-safe.pdf image copy for fussy printers), MOCK-C.pdf, MOCK-B-key.md, MOCK-C-key.md
 Question data lives in mock_data.py. PDFs are rendered with headless Chrome/Chromium.
 """
 import html, shutil, subprocess, sys, tempfile
@@ -140,7 +140,7 @@ def main():
     # Every real question exactly once across B and C
     used = [s for m in (D.MOCK_B, D.MOCK_C) for s in m["mcq"] + m["sa"] if not s.startswith("OWN")]
     assert len(used) == len(set(used)) == 51, len(used)
-    for m, name in ((D.MOCK_B, "MOCK-B"), (D.MOCK_C, "MOCK-C-part1")):
+    for m, name in ((D.MOCK_B, "MOCK-B"), (D.MOCK_C, "MOCK-C")):
         to_pdf(build_html(m), HERE / f"{name}.pdf")
         rasterize(HERE / f"{name}.pdf", HERE / f"{name}-print-safe.pdf")
         (HERE / f"{name}-key.md").write_text(build_key(m), encoding="utf-8")
