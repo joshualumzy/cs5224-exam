@@ -9,12 +9,14 @@ within the same lecture. A reference to a row or table that does not exist
 stops the build.
 Usage: python3 Notes/print/build.py
 """
-import html, re, subprocess, sys, tempfile
+import html, re, shutil, subprocess, sys, tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-SRC, OUT = HERE.parent / "INDEX.md", HERE.parent / "INDEX.pdf"
-CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+SRC = HERE.parent / "INDEX.md"
+OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else HERE.parent / "INDEX.pdf"
+CHROME = next((c for c in ("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "/opt/pw-browsers/chromium",
+               shutil.which("chromium") or "", shutil.which("google-chrome") or "") if c and Path(c).exists()), None)
 
 
 def inline(text):
@@ -96,11 +98,15 @@ def convert(lines):
             while i < len(lines) and lines[i].startswith("- "):
                 items.append(f"<li>{link(inline(lines[i][2:]), lec, refs)}</li>"); i += 1
             out.append("<ul>" + "".join(items) + "</ul>")
+        elif m := re.fullmatch(r"!\[(.*)\]\((.+\.svg)\)", line.strip()):
+            svg = (SRC.parent / m.group(2)).read_text()
+            out.append(f'<figure>{svg[svg.index("<svg"):]}</figure>')
+            i += 1
         elif re.match(r"\s|>|\d+\.\s|```|<|!\[|\[", line):
             raise ValueError(f"unsupported Markdown at line {i + 1}: {line[:80]}")
         else:
             para = []
-            while i < len(lines) and lines[i].strip() and not re.match(r"[#|>-]", lines[i]):
+            while i < len(lines) and lines[i].strip() and not re.match(r"[#|>-]|!\[", lines[i]):
                 para.append(lines[i].strip()); i += 1
             text = " ".join(para)
             cap = re.fullmatch(r"\*\*(\d+) · .+", text)
@@ -121,7 +127,7 @@ def main():
     with tempfile.TemporaryDirectory() as tmp:
         src = Path(tmp) / "index.html"
         src.write_text(page)
-        subprocess.run([CHROME, "--headless", "--disable-gpu", "--no-pdf-header-footer",
+        subprocess.run([CHROME, "--headless", "--no-sandbox", "--disable-gpu", "--no-pdf-header-footer",
                         f"--print-to-pdf={OUT}", src.as_uri()],
                        check=True, capture_output=True, timeout=120)
     if not OUT.exists() or OUT.stat().st_size == 0:

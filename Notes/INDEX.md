@@ -362,6 +362,10 @@ You choose **who may use** the infrastructure (deployment model) and **how much 
 |---|-------------|
 | 13 | **Service models:** all rest on a virtualisation layer; **IaaS** hands infrastructure architects **VMs**, **PaaS** hands developers runtimes and databases via **Docker** containers, **SaaS** hands application consumers a seat in a **multitenant** application. See also L02-4 (who manages what). |
 
+**14 · The stacks side by side** (one server shared by VMs; Type 1 and Type 2 hypervisors; containers on a shared host OS)
+
+![The stacks side by side](diagrams/l05-stacks.svg)
+
 ---
 
 ### L06 — Applications and Paradigms
