@@ -1,6 +1,6 @@
 # Cloud Computing: Key Concepts Reference
 
-Built from the CS5224 lectures, the NIST definition of cloud computing (SP 800-145) and common industry practice. Rows marked *(beyond the course)* are industry practice the course does not teach. It keeps the concepts you would actually use or explain in practice, not every slide. Abbreviations are explained in the glossary at the end (T10).
+Built from the CS5224 lectures, the NIST definition of cloud computing (SP 800-145) and common industry practice. Rows marked *(beyond the course)* are industry practice the course does not teach. It keeps the concepts you would actually use or explain in practice, not every slide.
 
 Look-alike concepts are compared side by side in a small table, numbered in sequence with the rows around it. "See also T3-9" means section 3, row or table 9.
 
@@ -23,7 +23,6 @@ You choose **who may use** the infrastructure (deployment model) and **how much 
 | Cost | What will it cost, and own or rent? | pricing models, cost levers, TCO | T7 |
 | Security, compliance and risk | What can go wrong, and where may data live? | trust boundary, residency, sovereignty, lock-in | T8 |
 | Design checklist | How do I approach a design problem? | one row per requirement type | T9 |
-| Glossary | What does this abbreviation mean? | CDN, VPC, S3, SQS, CI/CD, idempotent and more | T10 |
 
 ---
 
@@ -130,7 +129,7 @@ You choose **who may use** the infrastructure (deployment model) and **how much 
 | 10 | **Isolation inside multitenancy:** a shared app must still keep each tenant's load, data, backup and restore, and bill separate. Three common ways to hold the data:<br>(1) one shared database with a tenant ID on every row: cheapest, but restoring one tenant without touching the rest is hard<br>(2) a schema per tenant: in between<br>(3) a database per tenant: strongest isolation and easiest restore, but the most to run<br>**Watch out:** the separation is only as good as the application's code, and one tenant's heavy use can slow the others (T4-5). |
 | 11 | **Serverless functions (FaaS):** a function runs only when an event triggers it.<br>**Use it when** the work is spiky, event-triggered and short: no idle capacity, you pay only while code runs, it scales itself and the provider maintains it.<br>**Poor fit:** steady 24/7 load, held connections or state (a chat service keeping connections open for hours), and long heavy jobs (FaaS has resource limits; use a VM or container).<br>**Building with it:** one action per function; functions **never call each other**, so chain them by **events** (one function saves its output, and that save triggers the next); keep state in an external store (T3-6). |
 
-**12 · The stacks side by side** (one server shared by VMs; Type 1 and Type 2 hypervisors; containers on a shared host OS)
+**12 · The stacks side by side** (Type 1 and Type 2 hypervisors; containers on a shared host OS)
 
 ![The stacks side by side](diagrams/l05-stacks.svg)
 
@@ -319,7 +318,7 @@ You choose **who may use** the infrastructure (deployment model) and **how much 
 
 | # | Key concept |
 |---|-------------|
-| 6 | **What follows:** a tracked VM deleted by hand is noticed and recreated, because plan looks it up by its ID and finds it gone. A resource created by hand is not in the state, so Terraform never sees it.<br>**Speed:** Terraform works out which resources depend on which and creates the independent ones in parallel, so needless dependencies and one huge configuration slow a deployment. Keep dependencies to what is real and split large configurations into smaller modules and state files. |
+| 6 | **What follows:** a tracked VM deleted by hand is noticed and recreated, because plan looks it up by its ID and finds it gone. A resource created by hand is not in the state, so Terraform never sees it.<br>**Why it can be slow:** Terraform works out which resources depend on which and creates the independent ones in parallel, so a chain of needless dependencies forces them to run one after another; and every plan re-reads each tracked resource, so one huge configuration is slow to plan.<br>**Fix:** keep dependencies to what is real, and split large configurations into smaller modules and state files (which also limits the damage of a mistake). |
 | 7 | **Several environments (dev, staging, production):** write the infrastructure once as a **module** with inputs (server count, size, backups on or off). Each environment is its own folder that uses the module with its own values and has its **own state file**.<br>**Why:** one module means the environments' code cannot diverge and one fix reaches all of them; separate state files mean a plan or apply in dev can only touch dev.<br>**Avoid:** copying the whole folder per environment lets the copies diverge, and one shared state file puts production into every run. |
 | 8 | **Drift after IaC:** people can still change the live system by hand (e.g. an emergency console fix), so it stops matching the code.<br>**Detect it:** run `terraform plan` on a schedule (e.g. nightly in CI/CD) and alert on any change it lists.<br>**What the next apply does:** it undoes the hand change to any resource Terraform tracks, because apply always makes a fresh plan that sets the resource back to what the code says. The plan lists the reversal, but if the approver (or an auto-approving pipeline) does not read it, a forgotten 2 a.m. fix is silently undone. A resource created by hand is not in the state, so apply leaves it alone.<br>**Habit:** every emergency change goes back into the code (or is undone) through normal review. |
 | 9 | **Security, and where IaC is heading:** a mistake in the code is copied into every environment built from it, so the code needs continuous checking, and access keys stored in the code leak with it. **Policy-as-Code** checks every change against rules automatically in the pipeline, **GitOps** deploys whatever is merged into Git automatically, and **self-healing IaC** monitors, analyses and then fixes the system itself, going beyond auto-scaling's fixed rules. |
@@ -377,7 +376,7 @@ You choose **who may use** the infrastructure (deployment model) and **how much 
 
 ### T9 — Design checklist
 
-- **Designing a solution** ("design a cloud solution for…"): go down the checklist below in order and skip the questions the scenario does not raise. For each one it does raise, write "**X, because** <the requirement in the scenario>", and name the trade-off you accept. If the scenario leaves out the deciding fact, say so: "it depends on <the fact>: if …, …; if …, …". Finish with three checks: every requirement in the scenario has a choice; scaling also goes **back down**; no two choices clash (e.g. a private cloud alone cannot absorb a spike, so add cloud bursting to a public cloud).
+- **Designing a solution** ("design a cloud solution for…"): go down the checklist below in order and skip the questions the scenario does not raise. For each one it does raise, write "**X, because** <the requirement in the scenario>", and name the trade-off you accept. If the scenario leaves out the deciding fact, say so: "it depends on <the fact>: if …, …; if …, …". Finish with three checks: every requirement in the scenario has a choice; scaling also goes **back down**; no two choices clash (e.g. a private cloud has fixed capacity, so a spike beyond it needs either spare capacity you pay for all year or cloud bursting to a public cloud).
 
 | Ask | Cues in the scenario | Pick by |
 |---|---|---|
@@ -394,27 +393,3 @@ You choose **who may use** the infrastructure (deployment model) and **how much 
 | 11 · What will it cost? | steady 24/7 load, spikes, batch jobs that can wait, tight budget, servers bought recently, expensive borrowing | steady base → reserved or Savings Plan<br>unpredictable extra → on-demand<br>jobs that can be interrupted and delayed → spot<br>eliminate over-provisioning, right-size, and scale down when quiet (T7-3)<br>choosing an instance → the family that fits the job's bottleneck; compare total time (compute plus I/O) times price for every candidate<br>recent hardware or hard-to-move custom systems → wait<br>short of cash or borrowing is expensive → cloud |
 | 12 · Why is it slow? | slow responses, users complain, CPU high or low | CPU low but slow → the network or something the servers wait on: bandwidth for big transfers, distance (latency) for many small actions<br>CPU high → too much work per request (cache, faster queries) or too little capacity (scale)<br>steps done in a bad order → do the non-essential steps asynchronously<br>see the table in T4-3 |
 | 13 · Where do we host it? | a global footprint, choosing regions | availability: host in several zones or regions<br>cost: prices differ by region<br>latency: host close to users<br>legal requirements: data residency laws |
-
----
-
-### T10 — Glossary
-
-| Term | Meaning |
-|---|---|
-| **CDN** | content delivery network: caches copies of content at edge locations near users |
-| **VPC** | virtual private cloud: an isolated private network environment inside a public cloud |
-| **EC2** | AWS virtual servers (VMs) |
-| **S3** | AWS object storage (files, images, backups) |
-| **SQS** | AWS message queue service |
-| **EMR** | AWS managed cluster service for running MapReduce, Hadoop and Spark jobs |
-| **RDS** | AWS managed relational database service |
-| **CloudFront** | AWS's CDN |
-| **CI/CD** | continuous integration and delivery: an automated pipeline that builds, tests and deploys every code change |
-| **IaC** | infrastructure as code: infrastructure written as code and created by running it |
-| **Idempotent** | running it again changes nothing once the state is already right |
-| **SLA** | service level agreement: the provider's written promise (such as uptime) and the remedy if it is missed |
-| **RPO / RTO** | recovery point objective (how much recent data you can lose) / recovery time objective (how long you can be down); see T3-15 |
-| **Capex / Opex** | capital expenditure (up-front purchase) / operating expenditure (ongoing running cost) |
-| **TCO** | total cost of ownership: everything it costs to own and run something over time |
-| **QoS** | quality of service: the speed and reliability a network or service delivers |
-| **FaaS** | function as a service: serverless functions that run on events (for example AWS Lambda) |
